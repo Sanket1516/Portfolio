@@ -10,7 +10,8 @@ export function Reveal({ children, delay = 0, className = "", as: Tag = "div" }:
     if (!el) return;
     const io = new IntersectionObserver(
       ([e]) => {
-        if (e.isIntersecting) {
+        // Also reveal anything already scrolled past (deep links, restored scroll), or it stays hidden above the fold.
+        if (e.isIntersecting || e.boundingClientRect.top < 0) {
           el.classList.add("in");
           io.disconnect();
         }

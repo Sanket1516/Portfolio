@@ -55,7 +55,7 @@ function Chapter({ p, i }: { p: Project; i: number }) {
                 Under the hood <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
               </button>
               <Link href={`/work/${p.slug}`} className="btn">Case study <ArrowUpRight size={14} /></Link>
-              {p.repo && <a href={p.repo} target="_blank" rel="noreferrer" className="btn" aria-label={`${p.name} on GitHub`}><Github size={14} /> Code</a>}
+              {p.repo && <a href={p.repo} target="_blank" rel="noreferrer" className="btn" aria-label={`Code for ${p.name} on GitHub`}><Github size={14} /> Code</a>}
             </div>
           </div>
         </div>
