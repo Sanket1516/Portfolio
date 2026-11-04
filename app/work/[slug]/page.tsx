@@ -8,6 +8,7 @@ import { getProject, projects } from "@/data/projects";
 import { ArchDiagram } from "@/components/ArchDiagram";
 import { accentClass } from "@/lib/accent";
 import { Footer } from "@/components/sections/Connect";
+import { Toc } from "@/components/Toc";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -37,7 +38,7 @@ export default async function CaseStudy({ params }: Props) {
   const a = accentClass[p.accent];
   const i = projects.indexOf(p);
   const next = projects[(i + 1) % projects.length];
-  const toc = [["overview", "Overview"], ["problem", "Problem"], ["architecture", "Architecture"], ["decisions", "Decisions"], ["backend", "Backend"], ["data", "Data"], ["api", "API"], ["security", "Security"], ["deployment", "Deployment"], ["challenges", "Challenges"], ["limits", "Honest limits"]];
+  const toc = [["overview", "Overview"], ["problem", "Problem"], ["architecture", "Architecture"], ["decisions", "Decisions"], ["backend", "Backend"], ["data", "Data"], ["api", "API"], ["security", "Security"], ["deployment", "Deployment"], ["challenges", "Challenges"], ["limits", "Honest limits"]] as [string, string][];
 
   return (
     <>
@@ -50,7 +51,7 @@ export default async function CaseStudy({ params }: Props) {
           <p className="mt-4 text-sm text-dim">{p.status}</p>
           <ul className="mt-8 grid grid-cols-2 gap-px border border-line bg-line md:grid-cols-4">
             {p.metrics.map((x) => (
-              <li key={x.label} className="bg-bg p-4"><div className="display text-4xl">{x.value}</div><div className="mt-1 text-xs text-mute">{x.label}</div></li>
+              <li key={x.label} className="bg-bg p-4"><div className="display whitespace-nowrap text-[clamp(1.6rem,7vw,2.25rem)]">{x.value}</div><div className="mt-1 text-xs text-mute">{x.label}</div></li>
             ))}
           </ul>
           <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -61,9 +62,7 @@ export default async function CaseStudy({ params }: Props) {
 
         <div className="grid gap-10 lg:grid-cols-[11rem_1fr]">
           <nav aria-label="On this page" className="hidden lg:block">
-            <ul className="sticky top-24 space-y-2">
-              {toc.map(([id, label]) => <li key={id}><a href={`#${id}`} className="mono text-[11px] text-dim hover:text-ink">{label}</a></li>)}
-            </ul>
+            <Toc items={toc} />
           </nav>
           <div className="min-w-0">
             <Block id="overview" title="Overview" items={[...p.overview, p.role]} />
