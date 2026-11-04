@@ -159,7 +159,13 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
     // A lost context renders nothing and leaves the canvas blank (white). Never draw into one.
     if (!gl || gl.isContextLost()) return;
 
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Without a GPU (blocklisted drivers, VMs, some low-end devices) WebGL is rasterised on the CPU and a
+    // 60fps loop would pin the main thread. Those visitors, and reduced-motion ones, get still frames
+    // that redraw only on interaction.
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+    const renderer = String(gl.getParameter(dbg ? dbg.UNMASKED_RENDERER_WEBGL : gl.RENDERER));
+    const software = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer);
+    const reduced = software || matchMedia("(prefers-reduced-motion: reduce)").matches;
     const towerP = program(gl, TOWER_VS, TOWER_FS);
     const groundP = program(gl, GROUND_VS, GROUND_FS);
     if (!towerP || !groundP) return;
@@ -232,7 +238,7 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
     let vp: M = new Float32Array(16), eye = [0, 0, 0];
     let hot = -1, mouseGround: [number, number] = [999, 999];
     let pointer: { x: number; y: number } | null = null, needsPick = false;
-    const start = performance.now();
+    let start = performance.now();
 
     const resize = () => {
       const r = el.getBoundingClientRect();
@@ -328,8 +334,12 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
       draw(t, Math.min(1, t / 2.4));
       raf = requestAnimationFrame(frame);
     };
-    const go = () => { if (!running && !reduced) { running = true; raf = requestAnimationFrame(frame); } };
-    const still = () => { camera(); if (needsPick) { pick(); needsPick = false; } draw(0, 1); };
+    let armed = false;
+    const go = () => { if (armed && !running && !reduced) { running = true; raf = requestAnimationFrame(frame); } };
+    const paint = () => { camera(); if (needsPick) { pick(); needsPick = false; } draw(0, 1); };
+    // Coalesce interaction redraws to one per frame in still mode.
+    let queued = 0;
+    const still = () => { if (!queued) queued = requestAnimationFrame(() => { queued = 0; paint(); }); };
 
     const onMove = (e: PointerEvent) => {
       const r = host.getBoundingClientRect();
@@ -343,7 +353,7 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
     };
     const onLeave = () => { pointer = null; hot = -1; mouseGround = [999, 999]; setTip(null); targetYaw = YAW; targetPitch = PITCH; if (reduced) still(); };
 
-    const ro = new ResizeObserver(() => { resize(); if (reduced) still(); else if (!running) draw((performance.now() - start) / 1000, 1); });
+    const ro = new ResizeObserver(() => { resize(); if (reduced) still(); else if (armed && !running) draw((performance.now() - start) / 1000, 1); });
     ro.observe(el);
     const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting && !document.hidden; if (visible) go(); });
     io.observe(el);
@@ -354,11 +364,17 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
     host.addEventListener("pointerleave", onLeave);
 
     resize();
-    if (reduced) still(); else go();
-    el.dataset.ready = "1";
+    // Start the animated loop once the page is idle so it never competes with hydration.
+    const idle = (cb: () => void) => ("requestIdleCallback" in window ? requestIdleCallback(cb, { timeout: 1500 }) : setTimeout(cb, 300));
+    let idleId = 0;
+    if (reduced) paint();
+    else idleId = idle(() => { armed = true; start = performance.now(); go(); }) as number;
+    el.dataset.ready = software ? "still" : "1";
 
     return () => {
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(queued);
+      if ("cancelIdleCallback" in window) cancelIdleCallback(idleId); else clearTimeout(idleId);
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);

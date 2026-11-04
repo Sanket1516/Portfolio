@@ -3,12 +3,19 @@
 **If you are a new Claude session or account: read this whole file first, then continue from "Next step".**
 Do not redo the research. Everything found so far is recorded here. Update this file after each milestone.
 
-Last updated: 2026-11-05. All code written, `next build` passes (19 pages). Polish phase next.
+Last updated: 2026-11-04 (polish session). Browser review list 1-5 done. Lighthouse: mobile 92/100/100/100, desktop 100/100/100/100.
 
 ## Next step
 
-All sections and pages exist and `npm run build` passes. The site has NOT been reviewed in a browser since the sections were added.
-Do this next, in order:
+The first browser review (items 1-5) is done; see the log below. Suggested next work:
+
+- Animated skyline path (real GPU) could not be checked headless: headless Chromium uses SwiftShader, which the site
+  now detects and serves as still frames. Open it on a real machine and check the grow-in, drift and pulse.
+- Remaining Lighthouse notes (not failing): ~59 KiB unused JS, 14 KiB legacy JS polyfills, forced reflow insight.
+- `/work/[slug]` case-study pages and `/resume` have not had a visual pass yet.
+- Open questions for the user (below) are still unanswered.
+
+Review log:
 
 1. DONE (2026-11-04). White hero was REAL in dev: StrictMode re-ran the effect and cleanup called `loseContext()`, so the
    second run drew into a dead context. Cleanup now frees buffers/programs only; canvas has `bg-bg` fallback.
@@ -21,7 +28,14 @@ Do this next, in order:
    button; Shell output 18rem on phones; heatmap opens scrolled to the latest weeks and responds to taps.
    Work chapters, ArchDiagram list (Systems), Telemetry and Connect looked fine on mobile. All repos show "today" because
    the snapshot really has every repo pushed within seconds on 4 Nov 2026. Not a bug.
-5. Replace remaining rough spots, then run Lighthouse and fix anything low.
+5. DONE. Lighthouse mobile perf was 68 (TBT 7.3s): without a GPU, WebGL is rasterised on the CPU and the 60fps loop
+   blocked the main thread. `Skyline.tsx` now detects software renderers (SwiftShader, llvmpipe, ...) via
+   `WEBGL_debug_renderer_info` and draws still frames that redraw only on interaction (same path as reduced motion), and
+   the animated loop starts on `requestIdleCallback`. `canvas.dataset.ready` is "still" in that mode.
+   A11y fixes: About word-scrub uses an sr-only copy instead of `aria-label` on `<p>`, unlit words at .36 alpha (3:1),
+   logo and "Code" links have accessible names that contain their visible text.
+   `Reveal` now also reveals elements already above the viewport (deep links, restored scroll).
+   When re-running Lighthouse, kill `next-server` too: a stale server serves old HTML and chunks 500.
 
 Run commands: `npm install`, `npm run dev`, `npm run build`. If dev says "Can't resolve 'lucide-react'", the install is
 corrupt (an interrupted install left only `.map` files): `rm -rf node_modules .next && npm ci`.
