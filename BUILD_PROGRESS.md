@@ -17,6 +17,14 @@ The first browser review (items 1-5) is done; see the log below. Suggested next 
   cannot preview PDFs, so its fallback text shows in screenshots; that is expected).
 - Open questions for the user (below) are still unanswered.
 
+Deployment (2026-11-04): Render STATIC SITE. `next.config.ts` has `output: "export"`, `trailingSlash: true`,
+`images.unoptimized`. Build: `npm ci && npm run build`, publish directory `out`. `render.yaml` is a Blueprint with the
+same settings plus security headers (a static export cannot set headers itself). `.node-version` pins Node 22.
+Consequences: no ISR, so the GitHub section refreshes only when the site is rebuilt; no `next start` (use
+`npm run preview` to serve `out/` locally). The OG image is now a static `app/opengraph-image.png` (frozen from the old
+generated one) because an extensionless `/opengraph-image` file would get the wrong content type on a static host.
+Set `NEXT_PUBLIC_SITE_URL` on Render to the live URL, or canonical/OG/sitemap point at portfolio.sanketmali.dev.
+
 Motion layer (2026-11-04, user asked for "more dynamic and eye-catching"):
 - Hero name: letters rise after the preloader (`.hero-char`, `--hero-delay`), a light sweep crosses them every 8s on a
   static overlay copy (`.sheen`), letters lift on hover; hero copy drifts up and fades on scroll (`--hp`).
@@ -27,7 +35,7 @@ Motion layer (2026-11-04, user asked for "more dynamic and eye-catching"):
 - Giant outlined chapter numbers behind Work titles (`.chapter-num`).
 - Everything has a reduced-motion fallback. Lighthouse after: mobile 93/100/100/100, desktop 100/100/100/100, CLS 0.
 
-Functional test: `npm run e2e` (scripts/e2e.cjs) against `npm start`. 205/205 passed on 2026-11-04: all 12 routes,
+Functional test: `npm run e2e` (scripts/e2e.cjs) against `npm run preview` (static `out/`). 206/206 on the static build. 205/205 passed on 2026-11-04: all 12 routes,
 404, every internal link and anchor, PDF/OG/robots/sitemap, nav, skyline hover, stack hover, under-the-hood, trace,
 repo filter, every shell command + history + "/" shortcut, Konami dev mode, contact form (Formspree mocked: success,
 error + mail-app fallback), mobile menu, mobile tabs, no phone overflow, reduced motion, zero console errors.

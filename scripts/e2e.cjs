@@ -1,5 +1,5 @@
 // End-to-end check of every route, link, anchor and interactive feature.
-// Run against a production server:  npm run build && npm start, then  node scripts/e2e.cjs
+// Run against the static build:  npm run build && npm run preview, then  npm run e2e
 // Needs Playwright: npm i -D playwright && npx playwright install chromium. Formspree is mocked, so no real mail is sent.
 const { chromium } = require('playwright');
 const BASE = process.env.BASE_URL || 'http://localhost:3000';
@@ -32,7 +32,7 @@ const results = []; const ok = (n, c, info = '') => results.push(`${c ? 'PASS' :
   for (const l of links) { const r = await fetch(BASE + l); ok(`link ${l}`, r.ok, String(r.status)); }
   for (const h of hashes) { const [path, id] = h.split('|'); if (!id) continue; await p.goto(BASE + path, { waitUntil: 'domcontentloaded' }); ok(`anchor ${path}#${id}`, await p.evaluate((i) => !!document.getElementById(i), id)); }
   const pdf = await fetch(BASE + '/Sanket_Mali_Resume.pdf'); ok('resume PDF', pdf.ok && /pdf/.test(pdf.headers.get('content-type')));
-  const og = await fetch(BASE + '/opengraph-image'); ok('OG image', og.ok && /image/.test(og.headers.get('content-type')));
+  const og = await fetch(BASE + '/opengraph-image.png'); ok('OG image', og.ok && /image/.test(og.headers.get('content-type')));
   for (const f of ['/robots.txt', '/sitemap.xml', '/icon.svg']) ok(f, (await fetch(BASE + f)).ok);
 
   // 3. Home interactions
