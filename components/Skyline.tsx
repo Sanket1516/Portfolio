@@ -37,27 +37,34 @@ in float vHeight, vHot, vPulse;
 uniform vec3 uCamera;
 out vec4 o;
 void main() {
-  vec3 blue = vec3(0.17, 0.42, 1.0), violet = vec3(0.58, 0.42, 1.0);
-  float tall = clamp(vHeight / 8.0, 0.0, 1.0);
+  vec3 blue = vec3(0.20, 0.45, 1.0), violet = vec3(0.56, 0.40, 1.0);
+  float tall = clamp(vHeight / 10.0, 0.0, 1.0);
   vec3 tint = mix(blue, violet, tall);
-  float light = 0.32 + 0.68 * max(dot(vNormal, normalize(vec3(0.5, 0.9, 0.35))), 0.0);
+  float light = 0.45 + 0.55 * max(dot(vNormal, normalize(vec3(0.55, 0.9, 0.3))), 0.0);
   vec3 c;
   if (vNormal.y > 0.5) {
+    // Roof: emissive, with a bright lit rim. Empty days stay as dark floor tiles.
     float e = max(abs(vLocal.x), abs(vLocal.z));
-    float rim = smoothstep(0.40, 0.5, e);
+    float rim = smoothstep(0.42, 0.5, e);
     float flat_ = 1.0 - smoothstep(0.05, 0.3, vHeight);
-    c = mix(tint * 1.15, vec3(0.8, 0.88, 1.0), rim * 0.8);
-    c = mix(c, vec3(0.055, 0.07, 0.11) + vec3(0.1, 0.15, 0.3) * rim, flat_);
+    c = mix(tint * (0.9 + 0.7 * tall), vec3(0.85, 0.9, 1.0), rim * 0.85);
+    c = mix(c, vec3(0.04, 0.05, 0.08) + vec3(0.05, 0.08, 0.18) * rim, flat_);
   } else {
-    float fade = pow(clamp(vWorld.y / max(vHeight, 0.001), 0.0, 1.0), 1.7);
-    float bands = step(0.84, fract(vWorld.y * 1.6)) * 0.22;
-    c = tint * (0.1 + 0.8 * fade + bands) * light;
+    // Walls: dark glass that brightens toward the roof, thin floor bands, lit vertical edges.
+    float y = clamp(vWorld.y / max(vHeight, 0.001), 0.0, 1.0);
+    float fade = pow(y, 2.2);
+    float bands = step(0.9, fract(vWorld.y * 1.4)) * 0.18 * y;
+    float across = abs(vNormal.x) > 0.5 ? vLocal.z : vLocal.x;
+    float edge = smoothstep(0.43, 0.5, abs(across));
+    c = vec3(0.02, 0.025, 0.05) + tint * (0.05 + 0.75 * fade + bands + edge * (0.15 + 0.6 * fade)) * light;
   }
-  c += blue * vPulse * 0.7;
+  c += blue * vPulse * 0.55;
   c = mix(c, vec3(0.36, 0.95, 0.66), vHot * 0.85);
+  // Distance haze: towers melt into a faint blue horizon rather than straight to black.
   float dist = length(uCamera - vWorld);
-  float fog = smoothstep(28.0, 78.0, dist);
-  o = vec4(mix(c, vec3(0.024, 0.027, 0.043), fog), 1.0);
+  float fog = smoothstep(30.0, 82.0, dist);
+  vec3 haze = vec3(0.035, 0.045, 0.09);
+  o = vec4(mix(c, haze, fog), 1.0);
 }`;
 
 const GROUND_VS = `#version 300 es
@@ -81,6 +88,8 @@ void main() {
   c += vec3(0.09, 0.13, 0.25) * line * near;
   c += vec3(0.16, 0.29, 0.74) * line * glow;
   c += vec3(0.03, 0.05, 0.14) * glow * 0.6;
+  // Same haze as the towers, so the floor dissolves into a soft horizon line.
+  c = mix(c, vec3(0.035, 0.045, 0.09), smoothstep(34.0, 150.0, length(vWorld.xz)));
   o = vec4(c, 1.0);
 }`;
 
@@ -136,6 +145,8 @@ function program(gl: WebGL2RenderingContext, vs: string, fs: string) {
   return gl.getProgramParameter(p, gl.LINK_STATUS) ? p : null;
 }
 
+const YAW = 0.58, PITCH = 0.17;
+
 export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React.RefObject<HTMLElement | null> }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
@@ -145,7 +156,8 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
     const host = hostRef.current;
     if (!el || !host) return;
     const gl = el.getContext("webgl2", { antialias: true, alpha: false, powerPreference: "low-power" });
-    if (!gl) return;
+    // A lost context renders nothing and leaves the canvas blank (white). Never draw into one.
+    if (!gl || gl.isContextLost()) return;
 
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const towerP = program(gl, TOWER_VS, TOWER_FS);
@@ -159,7 +171,7 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
     const CELL = 1.25;
     const span = cols * CELL;
     const max = Math.max(1, ...days.map((d) => d.count));
-    const heightOf = (count: number) => (count ? 0.7 + Math.sqrt(count / max) * 11.5 : 0);
+    const heightOf = (count: number) => (count ? 0.6 + Math.sqrt(count / max) * 14 : 0);
     const grid = new Int32Array(cols * rows).fill(-1);
     const inst = new Float32Array(days.length * 4);
     days.forEach((d, i) => {
@@ -172,16 +184,22 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
     const verts: number[] = [];
     for (const [n, q] of cubeFaces) for (const i of [0, 1, 2, 0, 2, 3]) verts.push(...q[i], ...n);
 
+    const buffers: WebGLBuffer[] = [];
+    const buf = (data: Float32Array) => {
+      const b = gl.createBuffer()!;
+      buffers.push(b);
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    };
+
     const towerVao = gl.createVertexArray();
     gl.bindVertexArray(towerVao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+    buf(new Float32Array(verts));
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);
     gl.enableVertexAttribArray(1);
     gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-    gl.bufferData(gl.ARRAY_BUFFER, inst, gl.STATIC_DRAW);
+    buf(inst);
     gl.enableVertexAttribArray(2);
     gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 16, 0);
     gl.vertexAttribDivisor(2, 1);
@@ -194,9 +212,8 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
 
     const groundVao = gl.createVertexArray();
     gl.bindVertexArray(groundVao);
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
     const G = 200;
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-G, -G, -G, G, G, G, -G, -G, G, G, G, -G]), gl.STATIC_DRAW);
+    buf(new Float32Array([-G, -G, -G, G, G, G, -G, -G, G, G, G, -G]));
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
@@ -208,10 +225,10 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
 
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
-    gl.clearColor(0.024, 0.027, 0.043, 1);
+    gl.clearColor(0.035, 0.045, 0.09, 1);
 
     let w = 0, h = 0, raf = 0, visible = true, running = false;
-    let yaw = 0.62, pitch = 0.2, targetYaw = 0.62, targetPitch = 0.2;
+    let yaw = YAW, pitch = PITCH, targetYaw = YAW, targetPitch = PITCH;
     let vp: M = new Float32Array(16), eye = [0, 0, 0];
     let hot = -1, mouseGround: [number, number] = [999, 999];
     let pointer: { x: number; y: number } | null = null, needsPick = false;
@@ -229,9 +246,9 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
 
     const camera = () => {
       const aspect = w / Math.max(1, h);
-      const dist = aspect < 1 ? 58 : 46;
+      const dist = aspect < 1 ? 60 : 44;
       eye = [Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist];
-      const look = aspect < 1 ? [2, 8, 0] : [2, 7.5, 0];
+      const look = aspect < 1 ? [0, 7, 0] : [0, 4.6, 0];
       vp = mul(perspective(0.5, aspect, 1, 300), lookAt(eye, look, [0, 1, 0]));
     };
 
@@ -315,12 +332,12 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
       pointer = { x: e.clientX, y: e.clientY };
       needsPick = true;
       if (e.pointerType === "mouse") {
-        targetYaw = 0.62 + ((e.clientX - r.left) / r.width - 0.5) * 0.42;
-        targetPitch = 0.2 + ((e.clientY - r.top) / r.height - 0.5) * -0.1;
+        targetYaw = YAW + ((e.clientX - r.left) / r.width - 0.5) * 0.42;
+        targetPitch = PITCH + ((e.clientY - r.top) / r.height - 0.5) * -0.1;
       }
       if (reduced) still();
     };
-    const onLeave = () => { pointer = null; hot = -1; mouseGround = [999, 999]; setTip(null); targetYaw = 0.62; targetPitch = 0.2; if (reduced) still(); };
+    const onLeave = () => { pointer = null; hot = -1; mouseGround = [999, 999]; setTip(null); targetYaw = YAW; targetPitch = PITCH; if (reduced) still(); };
 
     const ro = new ResizeObserver(() => { resize(); if (reduced) still(); else if (!running) draw((performance.now() - start) / 1000, 1); });
     ro.observe(el);
@@ -344,13 +361,20 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerdown", onMove);
       host.removeEventListener("pointerleave", onLeave);
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      // Free resources but keep the context alive: StrictMode re-runs this effect on the same canvas,
+      // and getContext() would hand back a context we had just killed.
+      delete el.dataset.ready;
+      buffers.forEach((b) => gl.deleteBuffer(b));
+      gl.deleteVertexArray(towerVao);
+      gl.deleteVertexArray(groundVao);
+      gl.deleteProgram(towerP);
+      gl.deleteProgram(groundP);
     };
   }, [days, hostRef]);
 
   return (
     <>
-      <canvas ref={canvas} className="absolute inset-0 h-full w-full" aria-hidden="true" />
+      <canvas ref={canvas} className="absolute inset-0 h-full w-full bg-bg" aria-hidden="true" />
       {tip && (
         <div className="glass mono pointer-events-none absolute z-20 border border-line-2 px-2.5 py-1.5 text-[11px] whitespace-nowrap" style={{ left: tip.x + 14, top: tip.y - 40 }}>
           {tip.text}
