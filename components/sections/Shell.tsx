@@ -135,7 +135,7 @@ export function Shell() {
               <span className="led" aria-hidden="true" />
               <span className="mono text-[11px] text-mute">guest@sanket.sys</span>
             </div>
-            <div ref={box} className="scrollbar-thin mono h-[26rem] overflow-y-auto p-4 text-[12px] leading-[1.85] sm:text-[13px]" role="log" aria-label="Shell output" aria-live="polite">
+            <div ref={box} className="scrollbar-thin mono h-[18rem] overflow-y-auto p-4 sm:h-[26rem] text-[12px] leading-[1.85] sm:text-[13px]" role="log" aria-label="Shell output" aria-live="polite">
               {lines.map((l, i) => (
                 <div key={i} className={`whitespace-pre-wrap break-words ${l.kind === "err" ? "text-rose" : l.kind === "in" ? "text-ink" : "text-mute"}`}>
                   {l.kind === "in" && <span className="text-blue">$ </span>}

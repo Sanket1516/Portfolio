@@ -63,7 +63,9 @@ export function Hero({ days, total }: { days: Day[]; total: number }) {
   return (
     <section ref={host} id="top" className="relative flex min-h-[100svh] flex-col overflow-hidden" aria-label="Introduction">
       <div className="absolute inset-0"><Skyline days={days} hostRef={host} /></div>
-      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(6 7 11 / .55), rgb(6 7 11 / 0) 42%, rgb(6 7 11 / 0) 60%, rgb(6 7 11 / .94) 90%, #06070b)" }} aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 hidden lg:block" style={{ background: "linear-gradient(to bottom, rgb(6 7 11 / .55), rgb(6 7 11 / 0) 42%, rgb(6 7 11 / 0) 60%, rgb(6 7 11 / .94) 90%, #06070b)" }} aria-hidden="true" />
+      {/* On phones the copy sits over the towers, so the fade starts earlier and runs darker. */}
+      <div className="pointer-events-none absolute inset-0 lg:hidden" style={{ background: "linear-gradient(to bottom, rgb(6 7 11 / .5), rgb(6 7 11 / 0) 36%, rgb(6 7 11 / .1) 48%, rgb(6 7 11 / .82) 62%, rgb(6 7 11 / .94) 80%, #06070b)" }} aria-hidden="true" />
 
       <div className="wrap pointer-events-none relative flex flex-1 flex-col pt-20 pb-6 lg:pt-24">
         <div className="pointer-events-auto mb-5 flex items-center gap-2.5 self-start">
@@ -93,7 +95,7 @@ export function Hero({ days, total }: { days: Day[]; total: number }) {
           </div>
         </div>
 
-        <p className="mono mt-6 max-w-md text-[10px] leading-relaxed text-dim">
+        <p className="mono mt-6 max-w-md pr-20 text-[10px] leading-relaxed text-dim lg:pr-0">
           The skyline is real: {total} GitHub contributions, one tower per day. <Link href="/work/site" className="pointer-events-auto underline underline-offset-2 hover:text-ink">How it works</Link>
         </p>
       </div>
