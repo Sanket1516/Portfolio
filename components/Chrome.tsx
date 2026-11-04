@@ -180,6 +180,19 @@ export function Chrome() {
   const { scrollYProgress } = useScroll();
 
   useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
+      const el = (e.target as Element | null)?.closest?.(".spot") as HTMLElement | null;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    };
+    addEventListener("pointermove", onMove, { passive: true });
+    return () => removeEventListener("pointermove", onMove);
+  }, []);
+
+  useEffect(() => {
     console.log("%cSANKET.SYS", "font:800 28px sans-serif;color:#5a97ff", "\nCurious how this works? Type devmode in the shell, or try the Konami code.\n" + site.github);
   }, []);
 

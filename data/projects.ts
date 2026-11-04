@@ -814,7 +814,7 @@ export const projects: Project[] = [
       "If GitHub is unreachable, the site falls back to a committed snapshot and labels it as such.",
     ],
     data: ["All content lives in typed data files. The terminal, the constellation and the case studies read from the same source, so they cannot disagree."],
-    api: ["POST /api/contact validates input, uses a honeypot and a per-IP limit, and sends through Resend when configured."],
+    api: ["The contact form posts to Formspree from the browser, with a honeypot field for bots and a mail-app fallback if the request fails."],
     security: ["GitHub and mail tokens stay on the server. Nothing secret reaches the client bundle."],
     deployment: ["A standard Next.js build."],
     decisions: [

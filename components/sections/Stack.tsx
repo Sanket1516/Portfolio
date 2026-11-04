@@ -177,7 +177,7 @@ export function Stack() {
   return (
     <section id="stack" className="hop-section grid-bg" aria-labelledby="stack-h">
       <div className="wrap">
-        <SectionHead hop="02" title={<span id="stack-h">The stack, with receipts</span>} intro="No percentage bars. Every technology links to where it was used and how." />
+        <SectionHead hop="02" title="The stack, with receipts" titleId="stack-h" intro="No percentage bars. Every technology links to where it was used and how." />
         <Reveal><Constellation /></Reveal>
         <MobileSkills />
       </div>

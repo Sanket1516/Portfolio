@@ -58,8 +58,40 @@ function HeroTerminal() {
   );
 }
 
+// The name, split into rising letters. `overlay` renders the same layout without the motion,
+// for the light-sweep overlay that sits exactly on top.
+function Name({ overlay = false }: { overlay?: boolean }) {
+  let i = 0;
+  const word = (w: string) => (
+    <span className="hero-word">
+      {[...w].map((ch, c) => <span key={c} className={overlay ? "inline-block" : "hero-char"} style={overlay ? undefined : ({ "--i": i++ } as React.CSSProperties)}>{ch}</span>)}
+    </span>
+  );
+  return <>{word("Sanket")} <br className="lg:hidden" />{word("Mali")}</>;
+}
+
+// Scroll depth: as the hero leaves, the copy drifts up and fades while the skyline stays put.
+function useHeroScroll(host: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = host.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    const on = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const p = Math.min(1, Math.max(0, scrollY / el.offsetHeight));
+        el.style.setProperty("--hp", p.toFixed(4));
+      });
+    };
+    on();
+    addEventListener("scroll", on, { passive: true });
+    return () => { removeEventListener("scroll", on); cancelAnimationFrame(raf); };
+  }, [host]);
+}
+
 export function Hero({ days, total }: { days: Day[]; total: number }) {
   const host = useRef<HTMLElement>(null);
+  useHeroScroll(host);
   return (
     <section ref={host} id="top" className="relative flex min-h-[100svh] flex-col overflow-hidden" aria-label="Introduction">
       <div className="absolute inset-0"><Skyline days={days} hostRef={host} /></div>
@@ -67,14 +99,16 @@ export function Hero({ days, total }: { days: Day[]; total: number }) {
       {/* On phones the copy sits over the towers, so the fade starts earlier and runs darker. */}
       <div className="pointer-events-none absolute inset-0 lg:hidden" style={{ background: "linear-gradient(to bottom, rgb(6 7 11 / .5), rgb(6 7 11 / 0) 36%, rgb(6 7 11 / .1) 48%, rgb(6 7 11 / .82) 62%, rgb(6 7 11 / .94) 80%, #06070b)" }} aria-hidden="true" />
 
-      <div className="wrap pointer-events-none relative flex flex-1 flex-col pt-20 pb-6 lg:pt-24">
+      <div className="wrap pointer-events-none relative flex flex-1 flex-col pt-20 pb-6 lg:pt-24" style={{ transform: "translate3d(0, calc(var(--hp, 0) * -18vh), 0)", opacity: "calc(1 - var(--hp, 0) * 1.3)" }}>
         <div className="pointer-events-auto mb-5 flex items-center gap-2.5 self-start">
           <span className="led" aria-hidden="true" />
           <p className="mono text-[11px] text-mute">{site.status} · {site.statusDetail}</p>
         </div>
 
-        <h1 className="display text-[29vw] leading-[0.84] sm:text-[24vw] lg:whitespace-nowrap lg:text-[min(16.6vw,38vh)]">
-          Sanket <br className="lg:hidden" />Mali
+        <h1 className="display relative text-[29vw] leading-[0.84] sm:text-[24vw] lg:whitespace-nowrap lg:text-[min(16.6vw,38vh)]">
+          <span className="sr-only">Sanket Mali</span>
+          <span aria-hidden="true" className="pointer-events-auto"><Name /></span>
+          <span aria-hidden="true" className="sheen"><Name overlay /></span>
         </h1>
 
         <div className="mt-auto grid items-end gap-8 pt-10 lg:grid-cols-12">

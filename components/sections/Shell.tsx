@@ -11,7 +11,7 @@ type Line = { kind: "in" | "out" | "err"; text: string; href?: string };
 
 const out = (...t: string[]): Line[] => t.map((text) => ({ kind: "out", text }));
 const link = (text: string, href: string): Line => ({ kind: "out", text, href });
-const COMMANDS = ["help", "about", "skills", "projects", "project", "education", "contact", "github", "linkedin", "resume", "whoami", "ls", "open", "history", "date", "devmode", "clear", "sudo"];
+const COMMANDS = ["help", "about", "skills", "projects", "project", "education", "certs", "contact", "github", "linkedin", "resume", "whoami", "ls", "open", "history", "date", "devmode", "clear", "sudo"];
 
 function run(raw: string, history: string[]): Line[] | "clear" {
   const [cmd, ...args] = raw.trim().split(/\s+/);
@@ -21,7 +21,7 @@ function run(raw: string, history: string[]): Line[] | "clear" {
     case "help":
       return out(
         "about               who I am", "skills [group]      what I work with", "projects            everything I have built",
-        "project <name>      one project in detail", "education           degree and schools", "contact             how to reach me",
+        "project <name>      one project in detail", "education           degree and schools", "certs               certifications", "contact             how to reach me",
         "github | linkedin   profiles", "resume              the PDF", "open <section>      jump to a section", "history | date | clear",
       );
     case "whoami": return out("Software Engineer");
@@ -128,7 +128,7 @@ export function Shell() {
   return (
     <section id="shell" className="hop-section" aria-labelledby="shell-h">
       <div className="wrap">
-        <SectionHead hop="07" title={<span id="shell-h">Skip the UI</span>} intro={<>A working shell over the same data as this page. Try <code className="mono text-sm text-ink">help</code>, or press <kbd className="mono border border-line-2 px-1.5 text-sm text-ink">/</kbd> anywhere.</>} />
+        <SectionHead hop="07" title="Skip the UI" titleId="shell-h" intro={<>A working shell over the same data as this page. Try <code className="mono text-sm text-ink">help</code>, or press <kbd className="mono border border-line-2 px-1.5 text-sm text-ink">/</kbd> anywhere.</>} />
         <Reveal>
           <div className="ticks border border-line-2 bg-[#05060a]" onClick={() => { if (!getSelection()?.toString()) input.current?.focus({ preventScroll: true }); }}>
             <div className="flex items-center gap-2 border-b border-line px-4 py-2.5">
