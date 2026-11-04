@@ -29,9 +29,10 @@ function ScrollText({ text }: { text: string }) {
     return () => { removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, [words.length]);
   return (
-    <p ref={ref} className="text-[clamp(1.75rem,4.4vw,3.5rem)] font-medium leading-[1.14] tracking-tight" aria-label={text}>
+    <p ref={ref} className="text-[clamp(1.75rem,4.4vw,3.5rem)] font-medium leading-[1.14] tracking-tight">
+      <span className="sr-only">{text}</span>
       {words.map((w, i) => (
-        <span key={i} aria-hidden="true" className="transition-colors duration-300" style={{ color: i < lit ? "var(--color-ink)" : "rgb(255 255 255 / .17)" }}>{w} </span>
+        <span key={i} aria-hidden="true" className="transition-colors duration-300" style={{ color: i < lit ? "var(--color-ink)" : "rgb(255 255 255 / .36)" }}>{w} </span>
       ))}
     </p>
   );

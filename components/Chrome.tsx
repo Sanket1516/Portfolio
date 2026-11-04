@@ -58,7 +58,7 @@ function DesktopNav({ active, onHome }: { active: string; onHome: boolean }) {
   return (
     <header className="fixed inset-x-0 top-4 z-50 hidden justify-center px-4 lg:flex">
       <nav aria-label="Primary" className="glass flex items-center gap-1 border border-line px-2 py-1.5">
-        <Link href="/#top" className="display px-3 text-xl leading-none" aria-label="Sanket Mali, home">SM</Link>
+        <Link href="/#top" className="display px-3 text-xl leading-none" aria-label="SM, Sanket Mali, home">SM</Link>
         <span className="mx-1 h-4 w-px bg-line" aria-hidden="true" />
         {sections.map((s) => {
           const on = active === s.id;
@@ -91,7 +91,7 @@ function MobileNav({ onHome }: { onHome: boolean }) {
 
   return (
     <div className="lg:hidden">
-      <Link href="/#top" className="glass display fixed left-4 top-4 z-50 border border-line px-3 py-1.5 text-xl leading-none" style={{ marginTop: "env(safe-area-inset-top)" }} aria-label="Sanket Mali, home">SM</Link>
+      <Link href="/#top" className="glass display fixed left-4 top-4 z-50 border border-line px-3 py-1.5 text-xl leading-none" style={{ marginTop: "env(safe-area-inset-top)" }} aria-label="SM, Sanket Mali, home">SM</Link>
       <button
         ref={btn}
         type="button"
