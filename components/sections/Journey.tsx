@@ -16,7 +16,7 @@ export function Journey() {
   return (
     <section id="journey" className="hop-section bg-bg-2" aria-labelledby="journey-h">
       <div className="wrap">
-        <SectionHead hop="06" title={<span id="journey-h">The route so far</span>} />
+        <SectionHead hop="06" title="The route so far" titleId="journey-h" />
         <ol ref={ref} className="relative pl-6 md:pl-0">
           <span className="absolute inset-y-0 left-0 w-px bg-line md:left-[11rem]" aria-hidden="true" />
           <m.span className="absolute inset-y-0 left-0 w-px origin-top bg-blue md:left-[11rem]" style={{ scaleY }} aria-hidden="true" />

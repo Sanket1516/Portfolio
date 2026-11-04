@@ -118,7 +118,7 @@ export function Telemetry({ data }: { data: GitHubData }) {
   return (
     <section id="telemetry" className="hop-section" aria-labelledby="telemetry-h">
       <div className="wrap">
-        <SectionHead hop="05" title={<span id="telemetry-h">Live telemetry</span>} intro="Pulled from GitHub on the server, never hard-coded." />
+        <SectionHead hop="05" title="Live telemetry" titleId="telemetry-h" intro="Pulled from GitHub on the server, never hard-coded." />
         <Reveal>
           <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2">
             <p className="mono flex items-center gap-2 text-[11px] text-mute">

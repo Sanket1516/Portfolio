@@ -17,6 +17,21 @@ The first browser review (items 1-5) is done; see the log below. Suggested next 
   cannot preview PDFs, so its fallback text shows in screenshots; that is expected).
 - Open questions for the user (below) are still unanswered.
 
+Motion layer (2026-11-04, user asked for "more dynamic and eye-catching"):
+- Hero name: letters rise after the preloader (`.hero-char`, `--hero-delay`), a light sweep crosses them every 8s on a
+  static overlay copy (`.sheen`), letters lift on hover; hero copy drifts up and fades on scroll (`--hp`).
+- Section headings split into letters that rise from a mask (`SplitText` in `components/ui.tsx`; `SectionHead` now takes
+  `title` + `titleId` strings), with a drawn blue rule next to the hop label.
+- `components/sections/Ticker.tsx`: marquee of the real skill names between the hero and About (pauses on hover).
+- Spotlight hover (`.spot`, one delegated pointer listener in `Chrome.tsx`) on stat cells, rules, metrics, demo frames.
+- Giant outlined chapter numbers behind Work titles (`.chapter-num`).
+- Everything has a reduced-motion fallback. Lighthouse after: mobile 93/100/100/100, desktop 100/100/100/100, CLS 0.
+
+Functional test: `npm run e2e` (scripts/e2e.cjs) against `npm start`. 205/205 passed on 2026-11-04: all 12 routes,
+404, every internal link and anchor, PDF/OG/robots/sitemap, nav, skyline hover, stack hover, under-the-hood, trace,
+repo filter, every shell command + history + "/" shortcut, Konami dev mode, contact form (Formspree mocked: success,
+error + mail-app fallback), mobile menu, mobile tabs, no phone overflow, reduced motion, zero console errors.
+
 Review log:
 
 1. DONE (2026-11-04). White hero was REAL in dev: StrictMode re-ran the effect and cleanup called `loseContext()`, so the
@@ -81,7 +96,7 @@ resume preview and download, SEO.
 | 8. SEO, responsive, a11y, performance pass | SEO files done. Visual, a11y and performance pass still to do |
 | 9. Browser tests, Lighthouse, final review | Not started |
 
-Structure: `app/` (home, `work/[slug]`, `resume`, `api/contact`, SEO files), `components/sections/` (Hero, About, Stack, Work, Systems,
+Structure: `app/` (home, `work/[slug]`, `resume`, SEO files), `components/sections/` (Hero, About, Stack, Work, Systems,
 Telemetry, Journey, Shell, Connect), `components/demos/` (5 live demos), `components/{Chrome,DevMode,Skyline,ArchDiagram,ui,icons}.tsx`,
 `data/{profile,projects}.ts`, `lib/{site,github,accent}.ts`.
 
@@ -95,7 +110,8 @@ Telemetry, Journey, Shell, Connect), `components/demos/` (5 live demos), `compon
 - Projects get live in-browser demos of their real algorithms, labelled as demos: PassGuard entropy,
   Smart Campus scan state, DPI flow hash, Smart Form review gate.
 - GitHub data: server-side with ISR (1h), optional server-only GITHUB_TOKEN, committed snapshot fallback.
-- Contact form: `/api/contact` via Resend if RESEND_API_KEY is set, otherwise falls back to mailto and copy email.
+- Contact form (2026-11-04, user request): posts to Formspree `https://formspree.io/f/mdaljozd` from the browser
+  (`_gotcha` honeypot). On failure it offers a mailto fallback. The old `/api/contact` Resend route was removed.
 - Featured (brief order): VAAKYA, Smart Campus, Smart Form, PassGuard, then DPI Engine. More: MetroMind, Wanderlust, Clause Search, Claim Fraud.
 - Live demo links: none of the repos has a verified deployment, so show GitHub links only.
 

@@ -15,7 +15,7 @@ export function Systems() {
   return (
     <section id="systems" className="hop-section bg-bg-2" aria-labelledby="systems-h">
       <div className="wrap">
-        <SectionHead hop="04" title={<span id="systems-h">Trace a request</span>} intro="Pick a system and follow a real flow through it, or select any component to see what it does and where it lives in the code." />
+        <SectionHead hop="04" title="Trace a request" titleId="systems-h" intro="Pick a system and follow a real flow through it, or select any component to see what it does and where it lives in the code." />
         <Reveal>
           <div role="tablist" aria-label="Systems" className="scrollbar-thin -mx-5 mb-4 flex gap-1 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
             {list.map((x) => (

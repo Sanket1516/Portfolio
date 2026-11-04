@@ -3,6 +3,7 @@ import { skills } from "@/data/profile";
 import { projects } from "@/data/projects";
 import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
+import { Ticker } from "@/components/sections/Ticker";
 import { Stack } from "@/components/sections/Stack";
 import { Work } from "@/components/sections/Work";
 import { Systems } from "@/components/sections/Systems";
@@ -27,6 +28,7 @@ export default async function Home() {
     <>
       <main id="main">
         <Hero days={days} total={total} />
+        <Ticker />
         <About stats={stats} />
         <Stack />
         <Work />

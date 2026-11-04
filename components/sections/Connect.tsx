@@ -7,7 +7,10 @@ import { Github, Linkedin } from "@/components/icons";
 import { site } from "@/lib/site";
 import { Magnetic, Reveal } from "@/components/ui";
 
-type Status = "idle" | "sending" | "sent" | "fallback" | "error";
+type Status = "idle" | "sending" | "sent" | "error";
+
+// Messages go straight to Formspree from the browser. A form ID is public by design, so no secret is exposed.
+const FORM_ENDPOINT = "https://formspree.io/f/mdaljozd";
 
 function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
@@ -19,42 +22,47 @@ function ContactForm() {
     const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
     setStatus("sending");
     try {
-      const res = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const res = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ ...data, _subject: `Portfolio message from ${data.name}` }),
+      });
       if (res.ok) { setStatus("sent"); form.reset(); return; }
-      if (res.status === 503) {
-        // Mail is not configured on this deployment: hand the message to the visitor's mail app instead.
-        const subject = encodeURIComponent(`Portfolio message from ${data.name}`);
-        const body = encodeURIComponent(`${data.message}\n\nFrom: ${data.name} <${data.email}>`);
-        location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
-        setStatus("fallback");
-        return;
-      }
-      const j = await res.json().catch(() => null);
-      setMessage(j?.error ?? "Something went wrong. Please email me directly.");
+      const j = (await res.json().catch(() => null)) as { errors?: { message: string }[] } | null;
+      setMessage(j?.errors?.map((x) => x.message).join(" ") || "Something went wrong.");
       setStatus("error");
     } catch {
-      setMessage("The network failed. Please email me directly.");
+      setMessage("The network failed.");
       setStatus("error");
     }
   };
 
+  const mailto = (f: HTMLFormElement | null) => {
+    const d = f ? (Object.fromEntries(new FormData(f)) as Record<string, string>) : {};
+    return `mailto:${site.email}?subject=${encodeURIComponent(`Portfolio message from ${d.name ?? ""}`)}&body=${encodeURIComponent(`${d.message ?? ""}\n\nFrom: ${d.name ?? ""} <${d.email ?? ""}>`)}`;
+  };
+
   const field = "w-full border-b border-line-2 bg-transparent py-3 outline-none transition-colors focus:border-blue";
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-5" id="contact-form">
       <div className="grid gap-5 sm:grid-cols-2">
         <div><label htmlFor="c-name" className="label">Name</label><input id="c-name" name="name" required maxLength={100} autoComplete="name" className={field} /></div>
         <div><label htmlFor="c-email" className="label">Email</label><input id="c-email" name="email" type="email" required maxLength={200} autoComplete="email" className={field} /></div>
       </div>
       <div><label htmlFor="c-msg" className="label">Message</label><textarea id="c-msg" name="message" required minLength={10} maxLength={4000} rows={4} className={`${field} resize-y`} /></div>
-      <div className="absolute -left-[9999px]" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
+      <div className="absolute -left-[9999px]" aria-hidden="true"><label>Website<input name="_gotcha" tabIndex={-1} autoComplete="off" /></label></div>
       <div className="flex flex-wrap items-center gap-4">
         <Magnetic strength={0.35}>
           <button type="submit" disabled={status === "sending"} className="btn btn-solid disabled:opacity-60">{status === "sending" ? "Sending..." : "Send message"} <Send size={14} /></button>
         </Magnetic>
         <p role="status" className="text-sm">
           {status === "sent" && <span className="text-green">Sent. I will get back to you soon.</span>}
-          {status === "fallback" && <span className="text-mute">Your mail app should now be open with this message.</span>}
-          {status === "error" && <span className="text-rose">{message}</span>}
+          {status === "error" && (
+            <span className="text-rose">
+              {message}{" "}
+              <a href="#" onClick={(e) => { e.preventDefault(); location.href = mailto(document.getElementById("contact-form") as HTMLFormElement); }} className="underline underline-offset-2">Send it from your mail app instead</a>.
+            </span>
+          )}
         </p>
       </div>
     </form>

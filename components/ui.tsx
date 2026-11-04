@@ -41,13 +41,32 @@ export function Magnetic({ children, strength = 0.28, className = "" }: { childr
   );
 }
 
-export function SectionHead({ hop, title, intro }: { hop: string; title: ReactNode; intro?: ReactNode }) {
+// Letters rise out of a mask, word by word, when the parent Reveal gets `.in`.
+// Screen readers get the plain text once; the split letters are hidden from them.
+export function SplitText({ text, step = 22 }: { text: string; step?: number }) {
+  let n = 0;
+  return (
+    <>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true">
+        {text.split(" ").map((word, w) => (
+          <span key={w} className="split-word">
+            {[...word].map((ch, c) => <span key={c} className="split-char" style={{ "--i": n++, "--step": `${step}ms` } as React.CSSProperties}>{ch}</span>)}
+            {" "}
+          </span>
+        ))}
+      </span>
+    </>
+  );
+}
+
+export function SectionHead({ hop, title, titleId, intro }: { hop: string; title: string; titleId: string; intro?: ReactNode }) {
   return (
     <header className="mb-12 md:mb-20">
-      <Reveal>
-        <p className="label mb-5"><span className="text-blue">HOP {hop}</span></p>
-        <h2 className="display h-section">{title}</h2>
-        {intro && <p className="mt-6 max-w-2xl text-lg text-mute">{intro}</p>}
+      <Reveal className="split-host">
+        <p className="label mb-5 flex items-center gap-3"><span className="text-blue">HOP {hop}</span><span className="hop-rule" aria-hidden="true" /></p>
+        <h2 id={titleId} className="display h-section"><SplitText text={title} /></h2>
+        {intro && <p className="split-intro mt-6 max-w-2xl text-lg text-mute">{intro}</p>}
       </Reveal>
     </header>
   );
@@ -81,7 +100,7 @@ export function Counter({ value, suffix = "" }: { value: number; suffix?: string
 
 export function DemoFrame({ title, note, children, accent = "blue" }: { title: string; note: string; children: ReactNode; accent?: string }) {
   return (
-    <figure className="ticks border border-line bg-bg-2">
+    <figure className="spot ticks border border-line bg-bg-2">
       <figcaption className="flex items-center gap-2 border-b border-line px-4 py-3">
         <span className="flex gap-1.5" aria-hidden="true">
           <i className="h-2 w-2 rounded-full bg-line-2" /><i className="h-2 w-2 rounded-full bg-line-2" /><i className={`h-2 w-2 rounded-full ${accentClass[accent].bg}`} />

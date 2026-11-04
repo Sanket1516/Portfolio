@@ -97,10 +97,57 @@ body {
 /* Marquee of achievements */
 .scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--color-line-2) transparent; }
 
+
+/* ---------- Motion layer ---------- */
+
+/* Split headings: each letter rises out of its word's mask once the Reveal is in view. */
+.split-word { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .04em; margin-bottom: -.04em; }
+.split-char { display: inline-block; transform: translateY(105%); transition: transform .9s cubic-bezier(.2,.8,.2,1); transition-delay: calc(var(--i) * var(--step, 22ms)); }
+html:not(.js) .split-char, .in .split-char { transform: none; }
+.js .split-host.reveal { opacity: 1; transform: none; }
+.split-intro { opacity: 0; transform: translateY(.75rem); transition: opacity .8s .35s, transform .8s .35s cubic-bezier(.2,.8,.2,1); }
+html:not(.js) .split-intro, .in .split-intro { opacity: 1; transform: none; }
+.hop-rule { display: block; height: 1px; width: 4rem; background: var(--color-blue); transform: scaleX(0); transform-origin: left; transition: transform 1s .2s cubic-bezier(.2,.8,.2,1); }
+.in .hop-rule { transform: scaleX(1); }
+
+/* Hero name: letters rise after the preloader, then a slow light sweep runs across them. */
+:root { --hero-delay: 1s; }
+.booted { --hero-delay: .15s; }
+.hero-char { display: inline-block; animation: hero-rise 1.1s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--hero-delay) + var(--i) * 45ms); transition: transform .45s cubic-bezier(.2,.8,.2,1), color .3s; }
+.hero-word { display: inline-block; overflow: hidden; padding-bottom: .02em; }
+@keyframes hero-rise { from { transform: translateY(105%) skewY(6deg); } }
+@media (hover: hover) { .hero-char:hover { transform: translateY(-.06em); color: var(--color-blue); } }
+.sheen {
+  position: absolute; inset: 0; pointer-events: none; color: transparent;
+  background: linear-gradient(105deg, transparent 40%, rgb(190 212 255 / .95) 49%, #fff 50%, rgb(190 212 255 / .95) 51%, transparent 60%) 0 0 / 250% 100% no-repeat;
+  -webkit-background-clip: text; background-clip: text;
+  background-position: 130% 0; animation: sheen 8s calc(var(--hero-delay) + 1.6s) ease-in-out infinite;
+}
+@keyframes sheen { 0% { background-position: 130% 0; } 30%, 100% { background-position: -30% 0; } }
+
+/* Ticker */
+.marquee { display: flex; width: max-content; animation: marquee var(--dur, 60s) linear infinite; }
+.marquee-host:hover .marquee { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.outline-text { color: transparent; -webkit-text-stroke: 1px rgb(255 255 255 / .38); }
+
+/* Spotlight: a soft glow that follows the pointer. --mx/--my are set by one delegated listener. */
+.spot { position: relative; isolation: isolate; }
+.spot::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .35s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(90 151 255 / .17), transparent 45%); }
+.spot:hover::after { opacity: 1; }
+
+/* Giant outlined chapter index behind Work titles */
+.chapter-num { font-family: var(--font-display); font-weight: 800; line-height: .8; color: transparent; -webkit-text-stroke: 1px rgb(255 255 255 / .17); }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   .js .reveal { opacity: 1; transform: none; }
+  .split-char, .split-intro, .hero-char { transform: none !important; opacity: 1 !important; }
+  .hop-rule { transform: none; }
+  .marquee { animation: none; }
+  .sheen { display: none; }
 }
 
 /* Developer mode */

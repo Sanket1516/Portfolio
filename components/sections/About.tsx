@@ -42,12 +42,12 @@ export function About({ stats }: { stats: { value: number; suffix?: string; labe
   return (
     <section id="about" className="hop-section" aria-labelledby="about-h">
       <div className="wrap">
-        <SectionHead hop="01" title={<span id="about-h">Whoami</span>} />
+        <SectionHead hop="01" title="Whoami" titleId="about-h" />
         <div className="max-w-5xl"><ScrollText text={statement} /></div>
 
         <dl className="mt-20 grid grid-cols-2 border-t border-l border-line md:grid-cols-4">
           {stats.map((s, i) => (
-            <Reveal key={s.label} delay={i * 70} className="border-r border-b border-line p-5 md:p-7">
+            <Reveal key={s.label} delay={i * 70} className="spot border-r border-b border-line p-5 md:p-7">
               <dd className="display text-[clamp(3.25rem,7vw,6rem)]"><Counter value={s.value} suffix={s.suffix} /></dd>
               <dt className="mt-2 text-sm text-mute">{s.label}</dt>
             </Reveal>
@@ -68,7 +68,7 @@ export function About({ stats }: { stats: { value: number; suffix?: string; labe
           <ol className="lg:col-span-8">
             {principles.map((p, i) => (
               <Reveal as="li" key={p.rule} delay={i * 60} className="border-t border-line last:border-b">
-                <Link href={`/work/${p.slug}`} className="group grid gap-2 py-6 sm:grid-cols-[3rem_1fr_auto] sm:gap-4">
+                <Link href={`/work/${p.slug}`} className="spot group grid gap-2 px-2 py-6 transition-[padding] duration-300 sm:grid-cols-[3rem_1fr_auto] sm:gap-4 sm:hover:pl-4">
                   <span className="mono text-[11px] text-blue">0{i + 1}</span>
                   <span>
                     <span className="block text-xl font-semibold">{p.rule}</span>
