@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, GitFork, Star } from "lucide-react";
 import type { GitHubData, Repo } from "@/lib/github";
 import { site } from "@/lib/site";
@@ -25,17 +25,20 @@ function Heatmap({ days }: { days: GitHubData["contributions"] }) {
   const first = new Date(days[0].date + "T00:00:00Z").getUTCDay();
   const S = 13;
   const cols = Math.ceil((days.length + first) / 7);
+  // On narrow screens the calendar scrolls; open on the most recent weeks, like GitHub does.
+  const scroller = useRef<HTMLDivElement>(null);
+  useEffect(() => { const el = scroller.current; if (el) el.scrollLeft = el.scrollWidth; }, []);
   return (
     <div>
-      <div className="scrollbar-thin overflow-x-auto">
+      <div ref={scroller} className="scrollbar-thin overflow-x-auto">
         <svg viewBox={`0 0 ${cols * S} ${7 * S}`} className="min-w-[44rem]" role="img" aria-label={`Contribution calendar with ${days.reduce((n, d) => n + d.count, 0)} contributions over the last year`} onMouseLeave={() => setHover(null)}>
           {days.map((d, i) => {
             const p = i + first;
-            return <rect key={d.date} x={Math.floor(p / 7) * S} y={(p % 7) * S} width={S - 3} height={S - 3} fill={levels[d.level]} onMouseEnter={() => setHover(`${d.count} on ${fmtDate(d.date)}`)} />;
+            return <rect key={d.date} x={Math.floor(p / 7) * S} y={(p % 7) * S} width={S - 3} height={S - 3} fill={levels[d.level]} onPointerEnter={() => setHover(`${d.count} on ${fmtDate(d.date)}`)} />;
           })}
         </svg>
       </div>
-      <p className="mono mt-3 h-4 text-[11px] text-mute">{hover ?? "Hover a day"}</p>
+      <p className="mono mt-3 h-4 text-[11px] text-mute">{hover ?? "Hover or tap a day"}</p>
     </div>
   );
 }
