@@ -246,10 +246,14 @@ export default function Skyline({ days, hostRef }: { days: Day[]; hostRef: React
 
     const camera = () => {
       const aspect = w / Math.max(1, h);
-      const dist = aspect < 1 ? 60 : 44;
-      eye = [Math.sin(yaw) * Math.cos(pitch) * dist, Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist];
-      const look = aspect < 1 ? [0, 7, 0] : [0, 4.6, 0];
-      vp = mul(perspective(0.5, aspect, 1, 300), lookAt(eye, look, [0, 1, 0]));
+      // Portrait screens see a narrow slice, so swing round to look down the length of the year:
+      // all 53 weeks then stack into depth instead of running off both edges.
+      const portrait = aspect < 1;
+      const y = yaw + (portrait ? 0.72 : 0);
+      const dist = portrait ? 50 : 44;
+      eye = [Math.sin(y) * Math.cos(pitch) * dist, Math.sin(pitch) * dist, Math.cos(y) * Math.cos(pitch) * dist];
+      const look = portrait ? [0, 6.5, 0] : [0, 4.6, 0];
+      vp = mul(perspective(portrait ? 0.62 : 0.5, aspect, 1, 300), lookAt(eye, look, [0, 1, 0]));
     };
 
     // March the view ray through the grid and stop at the first tower it enters.
