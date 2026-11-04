@@ -12,7 +12,9 @@ The first browser review (items 1-5) is done; see the log below. Suggested next 
 - Animated skyline path (real GPU) could not be checked headless: headless Chromium uses SwiftShader, which the site
   now detects and serves as still frames. Open it on a real machine and check the grow-in, drift and pulse.
 - Remaining Lighthouse notes (not failing): ~59 KiB unused JS, 14 KiB legacy JS polyfills, forced reflow insight.
-- `/work/[slug]` case-study pages and `/resume` have not had a visual pass yet.
+- DONE: `/work/[slug]` and `/resume` reviewed (desktop and phone). Case-study contents list is now a scroll-spy
+  (`components/Toc.tsx`); metric values no longer wrap on phones. `/resume` PDF is served correctly (headless Chromium
+  cannot preview PDFs, so its fallback text shows in screenshots; that is expected).
 - Open questions for the user (below) are still unanswered.
 
 Review log:
