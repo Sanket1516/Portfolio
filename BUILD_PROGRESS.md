@@ -10,15 +10,22 @@ Last updated: 2026-11-05. All code written, `next build` passes (19 pages). Poli
 All sections and pages exist and `npm run build` passes. The site has NOT been reviewed in a browser since the sections were added.
 Do this next, in order:
 
-1. Run `npm run dev` and look at it. Fix what looks wrong. Highest priority: the hero showed a WHITE background in a headless
-   screenshot (body background was correctly dark, canvas reported ready). Find out if it is real or a headless artifact.
-   If real, check `components/Skyline.tsx`: canvas `alpha: false`, shaders, and camera framing.
-2. Tune the skyline composition (camera in `camera()`, height scale in `heightOf`) so the towers rise behind the name.
-3. Check the constellation in `components/sections/Stack.tsx` for overlapping labels on desktop.
-4. Check phone layouts at 390px: hero, Work chapters, ArchDiagram list, Shell.
+1. DONE (2026-11-04). White hero was REAL in dev: StrictMode re-ran the effect and cleanup called `loseContext()`, so the
+   second run drew into a dead context. Cleanup now frees buffers/programs only; canvas has `bg-bg` fallback.
+2. DONE. Camera `dist 44`, look `[0, 4.6, 0]`, `YAW 0.58 / PITCH 0.17`, height scale 14. Lit edges, emissive roofs,
+   horizon haze (clear colour = haze colour, so no hard horizon line).
+3. DONE. Constellation replaced by a two-column Sankey layout (skills left/right by group, projects on a centre spine,
+   curved links that flow on hover). Coordinates rounded with `r2()` to fix a server/client hydration mismatch.
+4. DONE. Phones (390px) and tablet (820px) reviewed. Portrait skyline swings yaw +0.72 to look down the length of the
+   year (dense city under the name); phone-only darker fade behind hero copy; hero footnote clears the floating menu
+   button; Shell output 18rem on phones; heatmap opens scrolled to the latest weeks and responds to taps.
+   Work chapters, ArchDiagram list (Systems), Telemetry and Connect looked fine on mobile. All repos show "today" because
+   the snapshot really has every repo pushed within seconds on 4 Nov 2026. Not a bug.
 5. Replace remaining rough spots, then run Lighthouse and fix anything low.
 
-Run commands: `npm install`, `npm run dev`, `npm run build`. GitHub rate-limits anonymous calls, so the Telemetry section may show the
+Run commands: `npm install`, `npm run dev`, `npm run build`. If dev says "Can't resolve 'lucide-react'", the install is
+corrupt (an interrupted install left only `.map` files): `rm -rf node_modules .next && npm ci`.
+Headless screenshots: launch Chromium with `--use-angle=swiftshader --enable-unsafe-swiftshader` so WebGL2 renders. GitHub rate-limits anonymous calls, so the Telemetry section may show the
 snapshot notice during development. That is expected.
 
 User preference (2026-11-05): stop verifying and researching. Focus on building the best site. Do not redo research.
