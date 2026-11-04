@@ -1,5 +1,7 @@
 # Sanket Mali: portfolio
 
+**Live site:** [portfolio-eues.onrender.com](https://portfolio-eues.onrender.com/)
+
 Next.js 16, TypeScript, Tailwind 4, Motion and hand-written WebGL2.
 
 ```bash
@@ -14,4 +16,4 @@ npm run build && npm start
 - `.env.example` lists the optional settings. The site works with none of them.
 - `BUILD_PROGRESS.md` records the plan, findings and open questions.
 
-Deploys to any Next.js host, such as Vercel. Set `NEXT_PUBLIC_SITE_URL` to the final domain.
+Live on Render at <https://portfolio-eues.onrender.com/>, built from `render.yaml`. It also deploys to any Next.js host, such as Vercel. Set `NEXT_PUBLIC_SITE_URL` to the final domain.
