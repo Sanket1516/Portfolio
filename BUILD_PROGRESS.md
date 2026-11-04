@@ -174,7 +174,10 @@ Contributors: repos are essentially all Sanket1516 commits.
 - Sanket's role: frontend, accessibility-first UX, voice pipeline (Whisper + Coqui TTS), Firebase integration,
   OCR workflow integration, responsive PWA, user-facing design.
 - Pinak's role: LangGraph orchestration, Financial Life Graph (Neo4j), RAG (Qdrant + LlamaIndex), LLM integration,
-  FastAPI backend, overall architecture. Credit Pinak. Do NOT attribute these to Sanket.
+  FastAPI backend, overall architecture. Do NOT attribute these to Sanket.
+- SUPERSEDED (2026-11-04, user's own statement): Sanket says he did all of the VAAKYA work himself and only shared
+  responsibility on paper. The site now credits all VAAKYA work to Sanket and does not name Pinak anywhere.
+  Note: the submitted Executive Summary still splits the roles, so the public site and that document now differ.
 - Four agents: Educator, Strategy Builder, Sentinel, Connector, sharing a Financial Life Graph.
 - Only code in the folder: `vaakya-plugin`, a Figma script generating a design system + 30 mobile screens.
 - No public repo. Label it a hackathon design submission unless evidence of a build appears.

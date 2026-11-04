@@ -56,7 +56,7 @@ export const projects: Project[] = [
     slug: "vaakya",
     name: "VAAKYA",
     tagline: "A four-agent financial companion for India, designed voice-first.",
-    kind: "Team project · Nomura KakushIN 2026",
+    kind: "Hackathon project · Nomura KakushIN 2026",
     status: "Round 2, Top 6 teams · Design and architecture submission",
     repo: null,
     featured: true,
@@ -68,7 +68,7 @@ export const projects: Project[] = [
     solution:
       "Four specialised agents share one Financial Life Graph, so guidance follows a person's real context. Voice is a first-class input, and progress is measured as a Financial Confidence Score rather than as engagement.",
     role:
-      "With Pinak Salunke, as team Invincibles. I owned the frontend, the accessibility-first experience, the voice pipeline, Firebase integration, the OCR workflow and the responsive PWA. Pinak owned agent orchestration, the graph, RAG, the backend and overall architecture.",
+      "Built end to end as team Invincibles: the frontend, the accessibility-first experience, the voice pipeline, Firebase integration, the OCR workflow, the responsive PWA, agent orchestration, the Financial Life Graph, RAG, the backend and the overall architecture.",
     metrics: [
       { value: "Top 6", label: "Advanced to Round 2" },
       { value: "4", label: "Specialised agents" },
@@ -81,7 +81,7 @@ export const projects: Project[] = [
       "So the design is not a single chatbot. An Educator teaches, a Strategy Builder plans, a Sentinel checks suspicious offers, and a Connector finds government schemes. All four read from the same model of the user.",
     ],
     backend: [
-      "Pinak designed the backend: FastAPI services with LangGraph coordinating the agents, and the model reached through one primary LLM.",
+      "I designed the backend: FastAPI services with LangGraph coordinating the agents, and the model reached through one primary LLM.",
       "A retrieval pipeline over Qdrant and LlamaIndex gives the Educator and Connector their knowledge base.",
     ],
     data: [
@@ -118,24 +118,24 @@ export const projects: Project[] = [
     limits: [
       "This is a competition design and architecture submission, not a production system.",
       "No public repository exists, so there is no code to link here.",
-      "The stack shows the design as submitted. The backend, graph and retrieval work is Pinak Salunke's.",
+      "The stack shows the design as submitted.",
     ],
     architecture: [
       {
         id: "agents",
         title: "Agent constellation",
-        caption: "Team design from the Round 2 submission. Input flows through four agents to one confidence engine.",
+        caption: "Design from the Round 2 submission. Input flows through four agents to one confidence engine.",
         height: 520,
         nodes: [
           { id: "user", label: "User", sub: "Text · voice · image", x: 40, y: 220, kind: "client", detail: "People reach VAAKYA by typing, speaking, or uploading an image such as a scam screenshot or a financial document." },
           { id: "pwa", label: "Next.js PWA", sub: "My work", x: 250, y: 120, kind: "client", detail: "The accessibility-first interface: a responsive progressive web app covering goals, learning, scam checks and scheme discovery." },
           { id: "voice", label: "Voice pipeline", sub: "My work", x: 250, y: 320, kind: "client", detail: "Whisper turns speech into text and Coqui TTS reads answers aloud, so that the product works without a screen." },
-          { id: "api", label: "FastAPI + LangGraph", sub: "Orchestration · Pinak", x: 470, y: 220, kind: "service", detail: "Coordinates which agent handles a request. Designed and owned by Pinak Salunke." },
+          { id: "api", label: "FastAPI + LangGraph", sub: "Orchestration", x: 470, y: 220, kind: "service", detail: "Coordinates which agent handles a request." },
           { id: "educator", label: "Educator", sub: "RAG over Qdrant", x: 730, y: 30, kind: "service", detail: "Retrieves trusted financial knowledge and explains it in simple language." },
           { id: "strategy", label: "Strategy Builder", sub: "Plans from the graph", x: 730, y: 130, kind: "service", detail: "Generates savings plans and roadmaps from the user's goals and profile." },
           { id: "sentinel", label: "Sentinel", sub: "OCR + risk analysis", x: 730, y: 230, kind: "service", detail: "Reads uploaded screenshots with PaddleOCR and analyses them for scams, fraudulent offers and predatory loans." },
           { id: "connector", label: "Connector", sub: "Scheme matching", x: 730, y: 330, kind: "service", detail: "Matches user attributes against scheme knowledge and guides the application." },
-          { id: "graph", label: "Financial Life Graph", sub: "Neo4j", x: 470, y: 420, kind: "data", detail: "The shared model of the person. Every agent reads from it, which is why guidance stays personal. Designed by Pinak Salunke." },
+          { id: "graph", label: "Financial Life Graph", sub: "Neo4j", x: 470, y: 420, kind: "data", detail: "The shared model of the person. Every agent reads from it, which is why guidance stays personal." },
           { id: "score", label: "Confidence Engine", sub: "Score + dashboard", x: 730, y: 430, kind: "data", detail: "Consolidates learning, goals, safety and schemes into a Financial Confidence Score shown on the dashboard." },
         ],
         edges: [["user", "pwa"], ["user", "voice"], ["pwa", "api"], ["voice", "api"], ["api", "educator"], ["api", "strategy"], ["api", "sentinel"], ["api", "connector"], ["api", "graph"], ["graph", "score"], ["connector", "score"]],
