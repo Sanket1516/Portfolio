@@ -12,8 +12,6 @@ import { Journey } from "@/components/sections/Journey";
 import { Shell } from "@/components/sections/Shell";
 import { Connect, Footer } from "@/components/sections/Connect";
 
-export const revalidate = 3600;
-
 export default async function Home() {
   const gh = await getGitHubData();
   const total = gh.contributions.reduce((n, d) => n + d.count, 0);
